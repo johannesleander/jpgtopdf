@@ -26,29 +26,20 @@ async function convertImagesToPDF(folder) {
 
     const doc = new PDFDocument();
 
-    // Pipe the PDF into a file
     doc.pipe(fs.createWriteStream(pdfPath));
 
     for (const file of files) {
         const imagePath = path.join(folderPath, file);
         const image = await Jimp.read(imagePath);
 
-        // Resize if needed (optional)
-        // image.resize(Jimp.AUTO, 800); // Example to resize to height of 800px
-
-        // Save as PNG temporarily
         const pngPath = imagePath.replace('.jpg', '.png');
     	console.log(`Processing ${pngPath}...`);
         await image.write(pngPath);
-
-        // Add image to PDF
         doc.addPage().image(pngPath, { fit: [500, 700] }); // Adjust size as needed
 
-        // Clean up the temporary PNG file
         fs.unlinkSync(pngPath);
     }
 
-    // Finalize the PDF and end the stream
     doc.end();
     console.log(`Converted ${files.length} images to ${pdfPath}`);
 }
